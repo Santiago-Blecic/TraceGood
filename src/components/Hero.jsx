@@ -8,12 +8,11 @@ const stats = [
 ]
 
 const globePoints = Array.from({ length: 630 }, (_, index) => {
-  const row = Math.floor(index / 30)
-  const column = index % 30
-  const y = -1 + row / 10
-  const width = Math.sqrt(Math.max(0, 1 - y * y))
-  const x = -width + (column / 29) * width * 2
-  const africa = x > -0.08 && x < 0.32 && y > -0.34 && y < 0.48 && (x + y * 0.3 > -0.06)
+  const angle = index * 2.3999632297
+  const radius = Math.sqrt((index + 0.5) / 630)
+  const x = Math.cos(angle) * radius
+  const y = Math.sin(angle) * radius
+  const africa = x > -0.12 && x < 0.34 && y > -0.35 && y < 0.46 && y > -1.2 * x - 0.26 && y < 1.65 * x + 0.36
   return { left: `${50 + x * 47}%`, top: `${50 + y * 47}%`, africa, key: index }
 })
 
@@ -27,16 +26,12 @@ export default function Hero() {
 
     video.muted = true
     video.defaultMuted = true
-    let active = true
-    video.play()
-      .then(() => { if (active) setReady(true) })
-      .catch(() => {})
+    video.play().catch(() => {})
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       video.pause()
       setReady(true)
     }
-    return () => { active = false }
   }, [])
 
   return (
@@ -56,6 +51,7 @@ export default function Hero() {
           controlsList="nodownload noplaybackrate nofullscreen"
           preload="auto"
           aria-hidden="true"
+          onLoadedData={() => setReady(true)}
         />
         <div className="hero__scrim" aria-hidden="true" />
         <div className="hero__rules" aria-hidden="true">
