@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Close, Logo, Menu } from './icons.jsx'
+import { Close, Menu } from './icons.jsx'
 import './Navbar.css'
 
 const links = [
@@ -19,8 +19,7 @@ export default function Navbar() {
   return (
     <header className="nav">
       <a className="nav__brand" href="#main" aria-label="TraceGood home">
-        <Logo className="nav__logo" />
-        <span>TraceGood</span>
+        <img className="nav__logo" src="/tracegood-logo.png" alt="TraceGood" />
       </a>
 
       <nav className="nav__pill" aria-label="Primary">

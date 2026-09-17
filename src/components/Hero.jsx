@@ -7,6 +7,16 @@ const stats = [
   { value: '100%', label: 'funding traceable' },
 ]
 
+const globePoints = Array.from({ length: 630 }, (_, index) => {
+  const row = Math.floor(index / 30)
+  const column = index % 30
+  const y = -1 + row / 10
+  const width = Math.sqrt(Math.max(0, 1 - y * y))
+  const x = -width + (column / 29) * width * 2
+  const africa = x > -0.08 && x < 0.32 && y > -0.34 && y < 0.48 && (x + y * 0.3 > -0.06)
+  return { left: `${50 + x * 47}%`, top: `${50 + y * 47}%`, africa, key: index }
+})
+
 export default function Hero() {
   const videoRef = useRef(null)
   const [ready, setReady] = useState(false)
@@ -17,13 +27,16 @@ export default function Hero() {
 
     video.muted = true
     video.defaultMuted = true
-    const play = video.play()
-    if (play?.catch) play.catch(() => {})
+    let active = true
+    video.play()
+      .then(() => { if (active) setReady(true) })
+      .catch(() => {})
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       video.pause()
       setReady(true)
     }
+    return () => { active = false }
   }, [])
 
   return (
@@ -43,7 +56,6 @@ export default function Hero() {
           controlsList="nodownload noplaybackrate nofullscreen"
           preload="auto"
           aria-hidden="true"
-          onLoadedData={() => setReady(true)}
         />
         <div className="hero__scrim" aria-hidden="true" />
         <div className="hero__rules" aria-hidden="true">
@@ -98,16 +110,17 @@ export default function Hero() {
 
         <aside className="impact-card" id="proof">
           <span className="impact-card__eyebrow">Your scanned product</span>
-          <h2>ClearSpring<br />Natural Water</h2>
+          <div className="impact-card__amount">
+            <span>Your contribution</span><strong>€0.02</strong>
+            <small>assigned to clean-water access</small>
+          </div>
+          <h2>ClearSpring Natural Water</h2>
           <div className="impact-card__meta">
             <span>500 ml bottle</span><span>Batch CS-KE-0426</span>
           </div>
           <div className="impact-card__project">
             <span className="impact-card__pin" aria-hidden="true">⌖</span>
             <div><small>Supporting</small><strong>Water pipeline repair<br />Kisumu County, Kenya</strong></div>
-          </div>
-          <div className="impact-card__funding">
-            <span>Your contribution</span><strong>€0.02</strong>
           </div>
           <a className="impact-card__tx" href="#verification">View XRP Ledger transaction <ArrowRight /></a>
         </aside>
@@ -123,13 +136,10 @@ export default function Hero() {
         <div className="impact-map__location"><span aria-hidden="true">●</span><div><strong>Kisumu County, Kenya</strong><small>Water pipeline repair project</small></div></div>
       </div>
       <div className="globe" role="img" aria-label="Globe showing a location pin in Kenya, Africa">
-        <svg viewBox="0 0 520 520" aria-hidden="true">
-          <defs><clipPath id="world"><circle cx="260" cy="260" r="214" /></clipPath></defs>
-          <circle className="globe__halo" cx="260" cy="260" r="236" /><circle className="globe__ocean" cx="260" cy="260" r="214" />
-          <g className="globe__grid"><ellipse cx="260" cy="260" rx="102" ry="214" /><ellipse cx="260" cy="260" rx="166" ry="214" /><path d="M47 260h426M62 172h396M62 348h396" /></g>
-          <g clipPath="url(#world)" className="globe__land"><path d="M200 91c-35 23-56 51-52 85l-42 25 10 35 43 5 22 39 42-6 16-49-18-32 19-44-20-28Z" /><path d="M285 117c50-16 107 11 121 48l-24 20 1 40-36 13-19 53-38-7-18-47 18-35-5-35Z" /><path d="M251 195c35 1 72 32 66 71l-25 18-5 55-30 61-27-38 9-52-25-37 15-45Z" /><path d="M132 331l56 4 24 34-22 50-42-22-31-37 15-29Z" /></g>
-          <g className="globe__pin"><circle cx="287" cy="282" r="31" /><path d="M287 250c-17 0-29 13-29 30 0 22 29 52 29 52s29-30 29-52c0-17-12-30-29-30Z" /><circle cx="287" cy="280" r="8" /></g>
-        </svg>
+        <div className="globe__sphere" aria-hidden="true">
+          {globePoints.map((point) => <i key={point.key} className={point.africa ? 'is-africa' : ''} style={{ left: point.left, top: point.top }} />)}
+          <span className="globe__pin" />
+        </div>
         <span className="globe__label">Kisumu<br />County</span>
       </div>
     </section>
