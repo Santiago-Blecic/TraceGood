@@ -34,6 +34,7 @@ export default function Hero() {
           className={`hero__video ${ready ? 'is-ready' : ''}`}
           src="/hero-loop.mp4"
           autoPlay
+          loop
           muted
           defaultMuted
           playsInline
