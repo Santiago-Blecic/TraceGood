@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Chevron, Close, Logo, Menu } from './icons.jsx'
+import { Close, Logo, Menu } from './icons.jsx'
 import './Navbar.css'
 
 const links = [
-  { label: 'Features', hasMenu: true },
-  { label: 'How It Works' },
-  { label: 'About' },
-  { label: 'Product' },
-  { label: 'Blogs' },
+  { label: 'How it works', href: '#how-it-works' },
+  { label: 'For brands', href: '#for-brands' },
+  { label: 'Proof', href: '#proof' },
+  { label: 'Our mission', href: '#mission' },
 ]
 
 export default function Navbar() {
@@ -20,18 +19,17 @@ export default function Navbar() {
 
   return (
     <header className="nav">
-      <a className="nav__brand" href="#main">
+      <a className="nav__brand" href="#main" aria-label="TraceGood home">
         <Logo className="nav__logo" />
-        <span>Fluxora</span>
+        <span>TraceGood</span>
       </a>
 
       <nav className="nav__pill" aria-label="Primary">
         <ul>
           {links.map((link) => (
             <li key={link.label}>
-              <a href="#main">
+              <a href={link.href}>
                 {link.label}
-                {link.hasMenu && <Chevron className="nav__chev" />}
               </a>
             </li>
           ))}
@@ -39,7 +37,7 @@ export default function Navbar() {
       </nav>
 
       <div className="nav__actions">
-        <a className="btn btn--light nav__cta" href="#main">Get Started</a>
+        <a className="btn btn--light nav__cta" href="#how-it-works">See your impact</a>
         <button
           className="nav__burger"
           type="button"
@@ -56,12 +54,12 @@ export default function Navbar() {
           <ul>
             {links.map((link) => (
               <li key={link.label}>
-                <a href="#main" onClick={() => setOpen(false)}>{link.label}</a>
+                <a href={link.href} onClick={() => setOpen(false)}>{link.label}</a>
               </li>
             ))}
           </ul>
-          <a className="btn btn--flame nav__sheet-cta" href="#main" onClick={() => setOpen(false)}>
-            Get Started
+          <a className="btn btn--flame nav__sheet-cta" href="#how-it-works" onClick={() => setOpen(false)}>
+            See your impact
           </a>
         </div>
       )}
