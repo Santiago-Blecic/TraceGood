@@ -7,15 +7,6 @@ const stats = [
   { value: '100%', label: 'funding traceable' },
 ]
 
-const globePoints = Array.from({ length: 630 }, (_, index) => {
-  const angle = index * 2.3999632297
-  const radius = Math.sqrt((index + 0.5) / 630)
-  const x = Math.cos(angle) * radius
-  const y = Math.sin(angle) * radius
-  const africa = x > -0.12 && x < 0.34 && y > -0.35 && y < 0.46 && y > -1.2 * x - 0.26 && y < 1.65 * x + 0.36
-  return { left: `${50 + x * 47}%`, top: `${50 + y * 47}%`, africa, key: index }
-})
-
 export default function Hero() {
   const videoRef = useRef(null)
   const [ready, setReady] = useState(false)
@@ -135,12 +126,10 @@ export default function Hero() {
         <p>Funds from batch CS-KE-0426 are combined and sent directly to the project partner repairing a local water pipeline in Kisumu County.</p>
         <div className="impact-map__location"><span aria-hidden="true">●</span><div><strong>Kisumu County, Kenya</strong><small>Water pipeline repair project</small></div></div>
       </div>
-      <div className="globe" role="img" aria-label="Globe showing a location pin in Kenya, Africa">
-        <div className="globe__sphere" aria-hidden="true">
-          {globePoints.map((point) => <i key={point.key} className={point.africa ? 'is-africa' : ''} style={{ left: point.left, top: point.top }} />)}
-          <span className="globe__pin" />
-        </div>
-        <span className="globe__label">Kisumu<br />County</span>
+      <div className="network-map" role="img" aria-label="Network world map with a location pin in Kisumu County, Kenya">
+        <img src="/tracegood-network-map.png" alt="" />
+        <span className="network-map__pin" aria-hidden="true" />
+        <span className="network-map__label">Kisumu<br />County</span>
       </div>
     </section>
 
