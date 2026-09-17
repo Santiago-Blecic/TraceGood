@@ -51,7 +51,11 @@ export default function Hero() {
           controlsList="nodownload noplaybackrate nofullscreen"
           preload="auto"
           aria-hidden="true"
-          onLoadedData={() => setReady(true)}
+          onLoadedData={(event) => {
+            event.currentTarget.muted = true
+            event.currentTarget.play().then(() => setReady(true)).catch(() => setReady(true))
+          }}
+          onPlaying={() => setReady(true)}
         />
         <div className="hero__scrim" aria-hidden="true" />
         <div className="hero__rules" aria-hidden="true">
