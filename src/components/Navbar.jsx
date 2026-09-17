@@ -3,10 +3,9 @@ import { Close, Logo, Menu } from './icons.jsx'
 import './Navbar.css'
 
 const links = [
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'For brands', href: '#for-brands' },
-  { label: 'Proof', href: '#proof' },
-  { label: 'Our mission', href: '#mission' },
+  { label: 'Your impact', href: '#proof' },
+  { label: 'Project location', href: '#project-location' },
+  { label: 'Transaction', href: '#verification' },
 ]
 
 export default function Navbar() {
@@ -37,7 +36,7 @@ export default function Navbar() {
       </nav>
 
       <div className="nav__actions">
-        <a className="btn btn--light nav__cta" href="#how-it-works">See your impact</a>
+        <a className="btn btn--light nav__cta" href="#verification">Verify transfer</a>
         <button
           className="nav__burger"
           type="button"
@@ -58,8 +57,8 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <a className="btn btn--flame nav__sheet-cta" href="#how-it-works" onClick={() => setOpen(false)}>
-            See your impact
+          <a className="btn btn--flame nav__sheet-cta" href="#verification" onClick={() => setOpen(false)}>
+            Verify transfer
           </a>
         </div>
       )}

@@ -1,19 +1,16 @@
-/* Fluxora — tokens sampled from the reference frame:
-   deep ember black ground, molten orange horizon, warm-tinted glass. */
 :root {
-  --ground: #2a0b02;
-  --ground-deep: #120400;
+  --ground: #00264f;
+  --ground-deep: #001b3b;
   --ink: #ffffff;
-  --ink-soft: rgba(255, 255, 255, 0.72);
-  --ink-faint: rgba(255, 255, 255, 0.46);
+  --ink-soft: rgba(255, 255, 255, 0.76);
+  --ink-faint: rgba(233, 238, 242, 0.64);
   --ink-ghost: rgba(255, 255, 255, 0.2);
 
-  --flame: #ff3d00;
-  --flame-lit: #ff8a1f;
+  --flame: #09bdaf;
+  --flame-lit: #21d4c5;
 
-  /* warm glass — a neutral grey tint reads pasted-on over this footage */
-  --glass: rgba(56, 20, 6, 0.42);
-  --glass-strong: rgba(40, 13, 3, 0.62);
+  --glass: rgba(0, 34, 75, 0.66);
+  --glass-strong: rgba(0, 27, 59, 0.78);
   --hair: rgba(255, 255, 255, 0.14);
   --hair-soft: rgba(255, 255, 255, 0.08);
 
@@ -65,7 +62,7 @@ a { color: inherit; text-decoration: none; }
   padding: 10px 16px;
   border-radius: 999px;
   background: #fff;
-  color: #150500;
+  color: var(--ground-deep);
   font-size: 14px;
   font-weight: 600;
 }
@@ -88,19 +85,19 @@ a { color: inherit; text-decoration: none; }
 .btn--light {
   padding: 0.72em 1.35em;
   background: #fff;
-  color: #180600;
+  color: var(--ground-deep);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
 }
-.btn--light:hover { transform: translateY(-1px); background: #fff4ec; }
+.btn--light:hover { transform: translateY(-1px); background: var(--ink-ghost); }
 
 .btn--flame {
   padding: 0.5em 0.5em 0.5em 1.5em;
   background: linear-gradient(96deg, var(--flame) 0%, var(--flame-lit) 100%);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 14px 40px rgba(255, 61, 0, 0.38);
+  box-shadow: 0 14px 40px rgba(9, 189, 175, 0.32);
 }
-.btn--flame:hover { transform: translateY(-2px); box-shadow: 0 20px 52px rgba(255, 61, 0, 0.5); }
+.btn--flame:hover { transform: translateY(-2px); box-shadow: 0 20px 52px rgba(9, 189, 175, 0.48); }
 
 @media (prefers-reduced-motion: reduce) {
   *,

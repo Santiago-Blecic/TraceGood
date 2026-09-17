@@ -102,3 +102,8 @@
 @media (max-width: 480px) {
   .nav__cta { display: none; }
 }
+
+/* TraceGood's navy navigation uses the supplied teal palette. */
+.nav__pill { background: rgba(0, 27, 59, 0.46); border-color: rgba(233, 238, 242, 0.18); }
+.nav__burger { background: rgba(0, 27, 59, 0.58); border-color: rgba(233, 238, 242, 0.2); }
+.nav__sheet { background: rgba(0, 27, 59, 0.96); border-color: rgba(233, 238, 242, 0.2); }

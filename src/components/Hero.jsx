@@ -7,12 +7,6 @@ const stats = [
   { value: '100%', label: 'funding traceable' },
 ]
 
-const steps = [
-  ['01', 'Scan the QR code', 'One scan connects your product to its impact.'],
-  ['02', 'See the project', 'Meet the local work your purchase helps fund.'],
-  ['03', 'Verify the transfer', 'View the batch payment recorded on XRPL.'],
-]
-
 export default function Hero() {
   const videoRef = useRef(null)
   const [ready, setReady] = useState(false)
@@ -21,7 +15,8 @@ export default function Hero() {
     const video = videoRef.current
     if (!video) return
 
-    // Some browsers block autoplay until the element is explicitly nudged.
+    video.muted = true
+    video.defaultMuted = true
     const play = video.play()
     if (play?.catch) play.catch(() => {})
 
@@ -41,10 +36,14 @@ export default function Hero() {
           src="/hero-loop.mp4"
           autoPlay
           muted
+          defaultMuted
           playsInline
+          disablePictureInPicture
+          disableRemotePlayback
+          controlsList="nodownload noplaybackrate nofullscreen"
           preload="auto"
           aria-hidden="true"
-          onCanPlay={() => setReady(true)}
+          onLoadedData={() => setReady(true)}
         />
         <div className="hero__scrim" aria-hidden="true" />
         <div className="hero__rules" aria-hidden="true">
@@ -56,23 +55,23 @@ export default function Hero() {
         <div className="hero__lead">
           <p className="hero__note">
             <Globe className="hero__note-icon" />
-            <span>Transparent social impact,<br />one product at a time</span>
+            <span>TraceGood receipt · verified<br />18 September 2026</span>
           </p>
 
           <h1 className="hero__title">
-            Scan the product.<br />
-            See the project.<br />
-            <em>Verify</em> the funding.
+            Your money is<br />
+            on its way to<br />
+            <em>clean water.</em>
           </h1>
 
           <p className="hero__sub">
-            TraceGood turns every purchase into proof. Scan a product QR code
-            to follow its contribution to a real social project.
+            You bought ClearSpring Natural Water. €0.02 from this bottle is
+            assigned to a water-pipeline repair in Kisumu County, Kenya.
           </p>
 
           <div className="hero__cta">
-            <a className="btn btn--flame hero__go" href="#how-it-works">
-              Follow the journey
+            <a className="btn btn--flame hero__go" href="#project-location">
+              Track your money
               <span className="hero__go-dot" aria-hidden="true"><ArrowRight /></span>
             </a>
 
@@ -116,15 +115,23 @@ export default function Hero() {
 
     </section>
 
-    <section className="journey" id="how-it-works">
-      <div className="section-kicker">End consumer process</div>
-      <div className="journey__intro">
-        <h2>From the shelf<br />to transparent impact.</h2>
-        <p>No crypto wallet. No vague claims. Just a direct, understandable record of where a purchase contributes.</p>
+    <section className="impact-map" id="project-location">
+      <div className="impact-map__copy">
+        <div className="section-kicker">Your impact destination</div>
+        <h2>Your contribution goes <em>here.</em></h2>
+        <p>Funds from batch CS-KE-0426 are combined and sent directly to the project partner repairing a local water pipeline in Kisumu County.</p>
+        <div className="impact-map__location"><span aria-hidden="true">●</span><div><strong>Kisumu County, Kenya</strong><small>Water pipeline repair project</small></div></div>
       </div>
-      <ol className="journey__steps">
-        {steps.map(([number, title, copy]) => <li key={number}><span>{number}</span><h3>{title}</h3><p>{copy}</p></li>)}
-      </ol>
+      <div className="globe" role="img" aria-label="Globe showing a location pin in Kenya, Africa">
+        <svg viewBox="0 0 520 520" aria-hidden="true">
+          <defs><clipPath id="world"><circle cx="260" cy="260" r="214" /></clipPath></defs>
+          <circle className="globe__halo" cx="260" cy="260" r="236" /><circle className="globe__ocean" cx="260" cy="260" r="214" />
+          <g className="globe__grid"><ellipse cx="260" cy="260" rx="102" ry="214" /><ellipse cx="260" cy="260" rx="166" ry="214" /><path d="M47 260h426M62 172h396M62 348h396" /></g>
+          <g clipPath="url(#world)" className="globe__land"><path d="M200 91c-35 23-56 51-52 85l-42 25 10 35 43 5 22 39 42-6 16-49-18-32 19-44-20-28Z" /><path d="M285 117c50-16 107 11 121 48l-24 20 1 40-36 13-19 53-38-7-18-47 18-35-5-35Z" /><path d="M251 195c35 1 72 32 66 71l-25 18-5 55-30 61-27-38 9-52-25-37 15-45Z" /><path d="M132 331l56 4 24 34-22 50-42-22-31-37 15-29Z" /></g>
+          <g className="globe__pin"><circle cx="287" cy="282" r="31" /><path d="M287 250c-17 0-29 13-29 30 0 22 29 52 29 52s29-30 29-52c0-17-12-30-29-30Z" /><circle cx="287" cy="280" r="8" /></g>
+        </svg>
+        <span className="globe__label">Kisumu<br />County</span>
+      </div>
     </section>
 
     <section className="verification" id="verification">
@@ -141,11 +148,6 @@ export default function Hero() {
       </div>
     </section>
 
-    <section className="mission" id="mission">
-      <div className="section-kicker">For brands and communities</div>
-      <h2>Make social impact<br /><em>visible, not vague.</em></h2>
-      <p id="for-brands">TraceGood gives brands a credible way to show that every promised contribution reaches its intended project—while communities receive funding directly.</p>
-    </section>
     </>
   )
 }
