@@ -114,7 +114,12 @@ export default function Hero() {
             <span className="impact-card__pin" aria-hidden="true">⌖</span>
             <div><small>Supporting</small><strong>Water pipeline repair<br />Kisumu County, Kenya</strong></div>
           </div>
-          <a className="impact-card__tx" href="#verification">View XRP Ledger transaction <ArrowRight /></a>
+          <div className="impact-card__batch" aria-label="Batch verification details">
+            <div><span>Batch total</span><strong>10,000 bottles × €0.02</strong></div>
+            <div><span>Transferred</span><strong>€200.00</strong></div>
+            <code>TX · 7A31F…9B84E · 18 SEP 2026</code>
+          </div>
+          <a className="impact-card__tx" href="#proof">View XRP Ledger transaction <ArrowRight /></a>
         </aside>
       </div>
 
@@ -131,20 +136,6 @@ export default function Hero() {
         <img src="/tracegood-network-map.png" alt="" />
         <span className="network-map__pin" aria-hidden="true" />
         <span className="network-map__label">Kisumu<br />County</span>
-      </div>
-    </section>
-
-    <section className="verification" id="verification">
-      <div>
-        <div className="section-kicker">Traceable by design</div>
-        <h2>Every batch has a story you can check.</h2>
-        <p>Contributions are aggregated by product batch and transferred to the project’s wallet. The XRP Ledger provides a public record of the amount, time and destination.</p>
-      </div>
-      <div className="verification__record">
-        <div><span>Batch contribution</span><strong>10,000 bottles × €0.02</strong></div>
-        <div><span>Transferred to project</span><strong>€200.00</strong></div>
-        <div><span>Transaction status</span><strong className="verified">✓ Funding verified on XRPL</strong></div>
-        <code>TX · 7A31F…9B84E · 18 SEP 2026</code>
       </div>
     </section>
 

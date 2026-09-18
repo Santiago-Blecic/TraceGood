@@ -5,7 +5,7 @@ import './Navbar.css'
 const links = [
   { label: 'Your impact', href: '#proof' },
   { label: 'Project location', href: '#project-location' },
-  { label: 'Transaction', href: '#verification' },
+  { label: 'Transaction', href: '#proof' },
 ]
 
 export default function Navbar() {
@@ -35,7 +35,7 @@ export default function Navbar() {
       </nav>
 
       <div className="nav__actions">
-        <a className="btn btn--light nav__cta" href="#verification">Verify transfer</a>
+        <a className="btn btn--light nav__cta" href="#proof">Verify transfer</a>
         <button
           className="nav__burger"
           type="button"
@@ -56,7 +56,7 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <a className="btn btn--flame nav__sheet-cta" href="#verification" onClick={() => setOpen(false)}>
+          <a className="btn btn--flame nav__sheet-cta" href="#proof" onClick={() => setOpen(false)}>
             Verify transfer
           </a>
         </div>

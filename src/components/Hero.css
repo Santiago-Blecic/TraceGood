@@ -47,3 +47,6 @@
 
 /* Decorative video: no browser playback controls or central start overlay. */
 .hero__video { pointer-events:none; }.hero__video::-webkit-media-controls, .hero__video::-webkit-media-controls-enclosure, .hero__video::-webkit-media-controls-overlay-play-button, .hero__video::-webkit-media-controls-start-playback-button { display:none !important; -webkit-appearance:none; }
+
+.impact-card__batch { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; padding:19px 0; border-top:1px solid rgba(233,238,242,.16); }.impact-card__batch span,.impact-card__batch strong { display:block; }.impact-card__batch span { color:rgba(233,238,242,.58); font-size:10px; }.impact-card__batch strong { margin-top:4px; color:#fff; font-size:12px; line-height:1.35; }.impact-card__batch code { grid-column:1 / -1; color:#21d4c5; font-size:9px; letter-spacing:.055em; }
+@media (max-width:460px) { .impact-card__batch { grid-template-columns:1fr; gap:12px; } .impact-card__batch code { grid-column:auto; } }
