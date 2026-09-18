@@ -8,45 +8,32 @@ const stats = [
 ]
 
 export default function Hero() {
-  const heroRef = useRef(null)
   const videoRef = useRef(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
     const video = videoRef.current
-    const hero = heroRef.current
-    if (!video || !hero) return
-
-    const syncVideoToScroll = () => {
-      if (!Number.isFinite(video.duration) || video.duration <= 0) return
-      const { top, height } = hero.getBoundingClientRect()
-      const progress = Math.min(1, Math.max(0, -top / Math.max(height * 0.78, 1)))
-      video.currentTime = progress * Math.max(video.duration - 0.05, 0)
-    }
+    if (!video) return
 
     video.muted = true
     video.defaultMuted = true
-    window.addEventListener('scroll', syncVideoToScroll, { passive: true })
-    video.addEventListener('loadedmetadata', syncVideoToScroll)
+    video.play().catch(() => {})
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       video.pause()
       setReady(true)
     }
-    return () => {
-      window.removeEventListener('scroll', syncVideoToScroll)
-      video.removeEventListener('loadedmetadata', syncVideoToScroll)
-    }
   }, [])
 
   return (
     <>
-    <section ref={heroRef} className="hero">
-      <div className="hero__media">
+      <div className="site-video" aria-hidden="true">
         <video
           ref={videoRef}
           className={`hero__video ${ready ? 'is-ready' : ''}`}
           src="/hero-faststart.mp4"
+          autoPlay
+          loop
           muted
           defaultMuted
           playsInline
@@ -57,10 +44,11 @@ export default function Hero() {
           aria-hidden="true"
           onLoadedData={() => setReady(true)}
         />
-        <div className="hero__scrim" aria-hidden="true" />
-        <div className="hero__rules" aria-hidden="true">
-          <span /><span /><span />
-        </div>
+      </div>
+    <section className="hero">
+      <div className="hero__scrim" aria-hidden="true" />
+      <div className="hero__rules" aria-hidden="true">
+        <span /><span /><span />
       </div>
 
       <div className="hero__inner">
