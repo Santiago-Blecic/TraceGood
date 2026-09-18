@@ -64,3 +64,6 @@
 
 /* Apply one consistent navy grade to the video for the whole page. */
 .site-video::after { content:''; position:absolute; inset:0; background:rgba(0,38,79,.62); }.hero__scrim { background:transparent; }
+
+/* Remove the decorative vertical grid lines. */
+.hero__rules { display:none; }
