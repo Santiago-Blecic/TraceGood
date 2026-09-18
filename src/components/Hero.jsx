@@ -32,7 +32,7 @@ export default function Hero() {
         <video
           ref={videoRef}
           className={`hero__video ${ready ? 'is-ready' : ''}`}
-          src="/hero-loop.mp4"
+          src="/hero-faststart.mp4"
           autoPlay
           loop
           muted
