@@ -61,3 +61,6 @@
 
 /* One uninterrupted video background across every section. */
 .impact-map { color:#fff; border:0; background:transparent; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }.impact-map .section-kicker { color:#21d4c5; }.impact-map p { color:rgba(255,255,255,.78); }.impact-map__location strong { color:#fff; }.impact-map__location small { color:rgba(255,255,255,.66); }.impact-map__location > span { box-shadow:0 0 0 7px rgba(9,189,175,.22); }
+
+/* Apply one consistent navy grade to the video for the whole page. */
+.site-video::after { content:''; position:absolute; inset:0; background:rgba(0,38,79,.62); }.hero__scrim { background:transparent; }
