@@ -4,14 +4,19 @@ import CONFIG from './tracegood.config.js'
 /*
   useBatchLedger -- live XRP figures for one batch wallet, converted to EUR.
 
-    raised       XRP pledged into this batch  (memo t:"forward")
-    transferred  XRP sent on to the charity   (memo t:"relegate")
+  Uses a WebSocket rather than HTTP on purpose: WebSocket connections are NOT
+  subject to CORS. There is no preflight and no Access-Control-Allow-Origin
+  check, so this works from any domain with no proxy and no server changes.
 
-  The wallet activation float carries memo t:"activate", so it is simply not
-  a forward and never counts. Nothing else to configure.
+    raised       XRP pledged in   (memo t:"forward")
+    transferred  XRP sent onward  (memo t:"relegate")
 
-  On a network error the last good figures are kept and status goes 'stale';
-  it never renders zeros during a blip.
+  The activation float carries memo t:"activate", so it is not a forward and
+  never counts.
+
+  It also subscribes to the account, so the ledger pushes changes the moment
+  they validate -- updates land in about a second rather than on a poll tick.
+  A slow re-query still runs as a safety net in case a push is missed.
 */
 
 const RIPPLE_EPOCH = 946684800 // XRPL counts seconds from 2000-01-01
@@ -32,6 +37,52 @@ function readMemo(tx) {
   return {}
 }
 
+function tally(transactions, address, masterAddress) {
+  let raised = 0
+  let transferred = 0
+  let latestTx = null
+
+  for (const entry of transactions || []) {
+    const tx = entry.tx_json || entry.tx || entry
+    const meta = entry.meta || entry.metaData || {}
+
+    if (tx.TransactionType !== 'Payment') continue
+    if ((meta.TransactionResult || 'tesSUCCESS') !== 'tesSUCCESS') continue
+
+    // rippled renamed this field; a non-string amount is an issued currency.
+    const amount = tx.DeliverMax || tx.Amount
+    if (typeof amount !== 'string') continue
+
+    const xrp = Number(amount) / 1e6
+    const memo = readMemo(tx)
+    const inbound = tx.Destination === address
+
+    if (inbound && memo.t === 'forward') {
+      if (masterAddress && tx.Account !== masterAddress) continue
+      raised += xrp
+    } else if (!inbound && memo.t === 'relegate') {
+      transferred += xrp
+    } else {
+      continue
+    }
+
+    const ledger = entry.ledger_index || tx.ledger_index || 0
+    if (!latestTx || ledger > latestTx.ledger) {
+      latestTx = {
+        ledger,
+        hash: entry.hash || tx.hash || '',
+        when: entry.close_time_iso
+          ? new Date(entry.close_time_iso)
+          : tx.date != null
+            ? new Date((Number(tx.date) + RIPPLE_EPOCH) * 1000)
+            : null,
+      }
+    }
+  }
+
+  return { raised, transferred, latestTx }
+}
+
 export default function useBatchLedger(overrides = {}) {
   const cfg = { ...CONFIG, ...overrides }
   const address = cfg.batchAddress
@@ -45,102 +96,108 @@ export default function useBatchLedger(overrides = {}) {
   const [rate, setRate] = useState(cfg.fallbackRate)
   const [rateLive, setRateLive] = useState(false)
 
-  const endpoint = useRef(0)
-  const fails = useRef(0)
+  const wsRef = useRef(null)
+  const serverRef = useRef(0)
+  const reqRef = useRef(1)
+  const closedRef = useRef(false)
 
-  const refresh = useCallback(async () => {
-    if (!address) return
-
-    let result = null
-    for (let i = 0; i < cfg.endpoints.length; i++) {
-      const idx = (endpoint.current + i) % cfg.endpoints.length
-      try {
-        const ctrl = new AbortController()
-        const timer = setTimeout(() => ctrl.abort(), 8000)
-        const res = await fetch(cfg.endpoints[idx], {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            method: 'account_tx',
-            params: [{ account: address, ledger_index_min: -1, ledger_index_max: -1, limit: 200 }],
-          }),
-          signal: ctrl.signal,
-        })
-        clearTimeout(timer)
-        if (!res.ok) continue
-        const json = await res.json()
-        if (!json.result || (json.result.error && json.result.error !== 'actNotFound')) continue
-        endpoint.current = idx
-        result = json.result
-        break
-      } catch {
-        /* try the next endpoint */
-      }
-    }
-
-    if (!result) {
-      fails.current += 1
-      setData((d) => ({ ...d, status: fails.current > 3 ? 'offline' : 'stale' }))
-      return
-    }
-
-    let raised = 0
-    let transferred = 0
-    let latestTx = null
-
-    for (const entry of result.transactions || []) {
-      const tx = entry.tx_json || entry.tx || entry
-      const meta = entry.meta || entry.metaData || {}
-
-      if (tx.TransactionType !== 'Payment') continue
-      if ((meta.TransactionResult || 'tesSUCCESS') !== 'tesSUCCESS') continue
-
-      // rippled renamed this field; a non-string amount is an issued currency.
-      const amount = tx.DeliverMax || tx.Amount
-      if (typeof amount !== 'string') continue
-
-      const xrp = Number(amount) / 1e6
-      const memo = readMemo(tx)
-      const inbound = tx.Destination === address
-
-      if (inbound && memo.t === 'forward') {
-        if (cfg.masterAddress && tx.Account !== cfg.masterAddress) continue
-        raised += xrp
-      } else if (!inbound && memo.t === 'relegate') {
-        transferred += xrp
-      } else {
-        continue
-      }
-
-      const ledger = entry.ledger_index || tx.ledger_index || 0
-      if (!latestTx || ledger > latestTx.ledger) {
-        latestTx = {
-          ledger,
-          hash: entry.hash || tx.hash || '',
-          when: entry.close_time_iso
-            ? new Date(entry.close_time_iso)
-            : tx.date != null
-              ? new Date((Number(tx.date) + RIPPLE_EPOCH) * 1000)
-              : null,
-        }
-      }
-    }
-
-    fails.current = 0
-    setData({ raised, transferred, latestTx, status: 'live' })
-  }, [address, cfg.endpoints, cfg.masterAddress])
+  const query = useCallback(() => {
+    const ws = wsRef.current
+    if (!ws || ws.readyState !== WebSocket.OPEN) return
+    ws.send(
+      JSON.stringify({
+        id: `tx-${reqRef.current++}`,
+        command: 'account_tx',
+        account: address,
+        ledger_index_min: -1,
+        ledger_index_max: -1,
+        limit: 200,
+      }),
+    )
+  }, [address])
 
   useEffect(() => {
     if (!address) return undefined
-    refresh()
-    const id = setInterval(refresh, cfg.pollMs)
-    const onVisible = () => !document.hidden && refresh()
-    document.addEventListener('visibilitychange', onVisible)
-    return () => {
-      clearInterval(id)
-      document.removeEventListener('visibilitychange', onVisible)
+    closedRef.current = false
+
+    let retry
+    let heartbeat
+
+    const connect = () => {
+      if (closedRef.current) return
+
+      const servers = cfg.wsEndpoints
+      const url = servers[serverRef.current % servers.length]
+      let ws
+      try {
+        ws = new WebSocket(url)
+      } catch {
+        serverRef.current += 1
+        retry = setTimeout(connect, 2000)
+        return
+      }
+      wsRef.current = ws
+
+      ws.onopen = () => {
+        setData((d) => ({ ...d, status: 'live' }))
+        // Push notifications the instant a transaction validates.
+        ws.send(JSON.stringify({ id: 'sub', command: 'subscribe', accounts: [address] }))
+        query()
+      }
+
+      ws.onmessage = (event) => {
+        let msg
+        try {
+          msg = JSON.parse(event.data)
+        } catch {
+          return
+        }
+
+        // Response to our account_tx query.
+        if (msg.result && Array.isArray(msg.result.transactions)) {
+          const { raised, transferred, latestTx } = tally(
+            msg.result.transactions,
+            address,
+            cfg.masterAddress,
+          )
+          setData({ raised, transferred, latestTx, status: 'live' })
+          return
+        }
+
+        // A transaction touching this account just validated -> re-query.
+        if (msg.type === 'transaction' && msg.validated) query()
+      }
+
+      ws.onerror = () => {
+        setData((d) => ({ ...d, status: 'stale' }))
+      }
+
+      ws.onclose = () => {
+        if (closedRef.current) return
+        setData((d) => ({ ...d, status: 'stale' }))
+        serverRef.current += 1 // try the next server on reconnect
+        retry = setTimeout(connect, 2000)
+      }
     }
-  }, [address, cfg.pollMs, refresh])
+
+    connect()
+
+    // Safety net in case a push is ever missed.
+    heartbeat = setInterval(query, 10000)
+
+    const onVisible = () => {
+      if (!document.hidden) query()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+
+    return () => {
+      closedRef.current = true
+      clearTimeout(retry)
+      clearInterval(heartbeat)
+      document.removeEventListener('visibilitychange', onVisible)
+      if (wsRef.current) wsRef.current.close()
+    }
+  }, [address, cfg.wsEndpoints, cfg.masterAddress, query])
 
   // Rate: once on mount, not polled.
   useEffect(() => {
@@ -170,6 +227,6 @@ export default function useBatchLedger(overrides = {}) {
     transferredEur: data.transferred * rate,
     explorerTx: cfg.explorerTx,
     explorerAccount: cfg.explorerAccount,
-    refresh,
+    refresh: query,
   }
 }
