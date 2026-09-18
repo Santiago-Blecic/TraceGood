@@ -67,3 +67,16 @@
 
 /* Remove the decorative vertical grid lines. */
 .hero__rules { display:none; }
+
+/* --- Live ledger additions -------------------------------------------- */
+.impact-card__batch .tg-sub { display:block; margin-top:5px; color:rgba(233,238,242,.58); font-size:11px; font-weight:450; letter-spacing:0; line-height:1.35; }
+.impact-card__batch code a { color:inherit; text-decoration:none; border-bottom:1px solid rgba(33,212,197,.4); }
+.impact-card__batch code a:hover { border-bottom-color:#21d4c5; }
+.tg-dot { display:inline-block; width:6px; height:6px; margin-left:7px; border-radius:50%; background:#9aa0a6; vertical-align:middle; }
+.tg-dot--live { background:#21d4c5; animation:tg-pulse 2s ease-in-out infinite; }
+.tg-dot--connecting { background:#9aa0a6; animation:tg-pulse 1.1s ease-in-out infinite; }
+.tg-dot--stale { background:#f0b429; }
+.tg-dot--offline { background:#e5484d; }
+.tg-dot--unconfigured { display:none; }
+@keyframes tg-pulse { 0%,100% { opacity:1 } 50% { opacity:.3 } }
+@media (prefers-reduced-motion: reduce) { .tg-dot { animation:none !important; } }
