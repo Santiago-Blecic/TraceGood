@@ -15,13 +15,25 @@ export default function Hero() {
     const video = videoRef.current
     if (!video) return
 
+    const syncVideoToScroll = () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return
+      const scrollable = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1)
+      const progress = Math.min(1, Math.max(0, window.scrollY / scrollable))
+      video.currentTime = progress * Math.max(video.duration - 0.05, 0)
+    }
+
     video.muted = true
     video.defaultMuted = true
-    video.play().catch(() => {})
+    window.addEventListener('scroll', syncVideoToScroll, { passive: true })
+    video.addEventListener('loadedmetadata', syncVideoToScroll)
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       video.pause()
       setReady(true)
+    }
+    return () => {
+      window.removeEventListener('scroll', syncVideoToScroll)
+      video.removeEventListener('loadedmetadata', syncVideoToScroll)
     }
   }, [])
 
@@ -32,8 +44,6 @@ export default function Hero() {
           ref={videoRef}
           className={`hero__video ${ready ? 'is-ready' : ''}`}
           src="/hero-faststart.mp4"
-          autoPlay
-          loop
           muted
           defaultMuted
           playsInline
