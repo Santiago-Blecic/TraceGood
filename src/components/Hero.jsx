@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Globe } from './icons.jsx'
+import useBatchLedger from '../useBatchLedger.js'
 import './Hero.css'
+
+const fmtEur = (n) =>
+  '\u20ac' + Number(n || 0).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+const fmtXrp = (n) => Number(n || 0).toLocaleString('en-GB', { maximumFractionDigits: 6 }) + ' XRP'
+
+const fmtDate = (d) =>
+  d ? d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() : ''
 
 const stats = [
   { value: '€0.02', label: 'from this bottle' },
@@ -10,6 +19,7 @@ const stats = [
 export default function Hero() {
   const videoRef = useRef(null)
   const [ready, setReady] = useState(false)
+  const ledger = useBatchLedger()
 
   useEffect(() => {
     const video = videoRef.current
@@ -121,11 +131,40 @@ export default function Hero() {
             <div><small>Supporting</small><strong>Water pipeline repair<br />Kisumu County, Kenya</strong></div>
           </div>
           <div className="impact-card__batch" aria-label="Batch verification details">
-            <div><span>Batch total</span><strong>10,000 bottles × €0.02</strong></div>
-            <div><span>Transferred</span><strong>€200.00</strong></div>
-            <code>TX · 7A31F…9B84E · 18 SEP 2026</code>
+            <div>
+              <span>
+                Batch total
+                <i className={`tg-dot tg-dot--${ledger.status}`} aria-hidden="true" />
+              </span>
+              <strong>{fmtEur(ledger.raisedEur)}</strong>
+              <small className="tg-sub">{fmtXrp(ledger.raised)}</small>
+            </div>
+            <div>
+              <span>Transferred</span>
+              <strong>{fmtEur(ledger.transferredEur)}</strong>
+              <small className="tg-sub">{fmtXrp(ledger.transferred)}</small>
+            </div>
+            <code>
+              {ledger.latestTx ? (
+                <a href={ledger.explorerTx + ledger.latestTx.hash} target="_blank" rel="noopener noreferrer">
+                  TX \u00b7 {ledger.latestTx.hash.slice(0, 5)}\u2026{ledger.latestTx.hash.slice(-5)} \u00b7{' '}
+                  {fmtDate(ledger.latestTx.when)}
+                </a>
+              ) : ledger.configured ? (
+                'Awaiting first ledger entry\u2026'
+              ) : (
+                'Add ?batch=<address> to follow a wallet'
+              )}
+            </code>
           </div>
-          <a className="impact-card__tx" href="#proof">View XRP Ledger transaction <ArrowRight /></a>
+          <a
+            className="impact-card__tx"
+            href={ledger.configured ? ledger.explorerAccount + ledger.address : '#proof'}
+            target={ledger.configured ? '_blank' : undefined}
+            rel={ledger.configured ? 'noopener noreferrer' : undefined}
+          >
+            View XRP Ledger transaction <ArrowRight />
+          </a>
         </aside>
       </div>
 
