@@ -24,16 +24,16 @@ export const CONFIG = {
   // master wallet -- a memo alone proves nothing, anyone can attach one.
   masterAddress: params.get('master') || '',
 
-  // '/xrpl' is same-origin, so CORS cannot apply. Backed by the Vite dev
-  // proxy or the Worker. If neither is present it 404s and the public
-  // endpoints below are used instead.
-  endpoints: [
-    '/xrpl',
-    'https://testnet.xrpl-labs.com/',
-    'https://s.altnet.rippletest.net:51234/',
+  /*
+    WebSocket endpoints. WebSockets are NOT subject to CORS -- no preflight,
+    no Access-Control-Allow-Origin check -- so this works from any domain
+    with no proxy. Tried in order; it moves to the next one on a failure.
+  */
+  wsEndpoints: [
+    'wss://testnet.xrpl-labs.com/',
+    'wss://s.altnet.rippletest.net:51233/',
+    'wss://clio.altnet.rippletest.net:51233/',
   ],
-
-  pollMs: 3000,
 
   // Fetched once on mount, never polled.
   rateUrl: 'https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=eur',
